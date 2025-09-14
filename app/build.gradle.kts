@@ -54,6 +54,10 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:3.3.0")
     implementation("io.ktor:ktor-client-websockets:3.3.0")
     implementation("io.ktor:ktor-client-logging:3.3.0")
+    implementation("io.ktor:ktor-server-core:3.3.0")
+    implementation("io.ktor:ktor-server-netty:3.3.0")
+    implementation("io.ktor:ktor-server-websockets:3.3.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
