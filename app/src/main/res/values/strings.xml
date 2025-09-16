@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">voting_app</string>
+    <string name="title_txt">Simple Voting App</string>
+    <string name="subject_prompt_txt">Enter the subject of the vote</string>
+    <string name="option_1_txt">Option 1</string>
+    <string name="option_2_txt">Option 2</string>
+    <string name="add_option_btn">Add Option</string>
+    <string name="checkboxes_switch_text">Checkboxes:</string>
+    <string name="lan_choice_txt">LAN</string>
+    <string name="local_choice_txt">Same Device</string>
+    <string name="continue_button">Continue</string>
 </resources>
