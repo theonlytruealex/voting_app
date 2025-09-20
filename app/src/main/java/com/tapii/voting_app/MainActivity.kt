@@ -5,8 +5,10 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.widget.*
 import androidx.activity.ComponentActivity
+import androidx.core.view.isVisible
 
 class MainActivity : ComponentActivity() {
 
@@ -16,6 +18,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var choicesGroup: RadioGroup
     private lateinit var continueButton: Button
     private lateinit var addOptionButton: Button
+    private lateinit var voterCount: EditText
 
     private var optionCount = 2
 
@@ -30,6 +33,7 @@ class MainActivity : ComponentActivity() {
         choicesGroup = findViewById(R.id.choices_group)
         continueButton = findViewById(R.id.continue_button)
         addOptionButton = findViewById(R.id.add_option_button)
+        voterCount = findViewById(R.id.voter_count)
 
         addOptionButton.setOnClickListener {
             optionCount++
@@ -63,6 +67,8 @@ class MainActivity : ComponentActivity() {
             validateForm();
         }
 
+        voterCount.addTextChangedListener(formWatcher);
+
         continueButton.setOnClickListener {
             val data = collectFormData();
             if (data.networkChoice.compareTo("LAN") == 0) {
@@ -75,6 +81,7 @@ class MainActivity : ComponentActivity() {
                     putExtra("subject", data.subject)
                     putStringArrayListExtra("options", ArrayList(data.options))
                     putExtra("allowMultiple", data.allowMultiple)
+                    putExtra("vCount", data.vCount)
                 }
                 startActivity(intent)
             }
@@ -107,8 +114,15 @@ class MainActivity : ComponentActivity() {
         }
 
         val radioSelected = choicesGroup.checkedRadioButtonId != -1
-
-        continueButton.isEnabled = subjectFilled && filledOptions >= 2 && radioSelected
+        if (radioSelected) {
+            val selectedText = findViewById<RadioButton>(choicesGroup.checkedRadioButtonId).text.toString()
+            if (selectedText != "LAN") {
+                voterCount.visibility = View.VISIBLE
+            } else {
+                voterCount.visibility = View.INVISIBLE
+            }
+        }
+        continueButton.isEnabled = subjectFilled && filledOptions >= 2 && radioSelected && ((!voterCount.isVisible) || voterCount.text.toString().trim().isNotEmpty())
     }
 
     private fun collectFormData(): FormData {
@@ -133,12 +147,17 @@ class MainActivity : ComponentActivity() {
         } else {
             ""
         }
+        var vCount = -1
+        if (voterCount.isVisible) {
+            vCount = voterCount.text.toString().trim().toInt()
+        }
 
         return FormData(
             subject = subjectText,
             options = options,
             allowMultiple = allowMultiple,
-            networkChoice = selectedText
+            networkChoice = selectedText,
+            vCount = vCount
         )
     }
 
@@ -150,5 +169,6 @@ data class FormData(
     val subject: String,
     val options: List<String>,
     val allowMultiple: Boolean,
-    val networkChoice: String
+    val networkChoice: String,
+    val vCount: Int
 )

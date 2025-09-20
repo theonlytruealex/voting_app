@@ -157,6 +157,17 @@
 
             </RadioGroup>
 
+        <EditText
+            android:id="@+id/voter_count"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="@string/voter_count_txt"
+            android:inputType="text"
+            android:background="@drawable/edittext_background"
+            android:padding="12dp"
+            android:layout_marginBottom="20dp"
+            android:visibility="invisible"/>
+
 
         <!-- Continue Button -->
         <Button
