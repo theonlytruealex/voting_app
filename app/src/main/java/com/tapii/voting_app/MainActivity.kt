@@ -48,34 +48,34 @@ class MainActivity : ComponentActivity() {
                     bottomMargin = 8.dpToPx()
                 }
             }
-            optionsContainer.addView(newOption, optionsContainer.childCount - 1);
-            addWatcher(newOption);
-            validateForm();
+            optionsContainer.addView(newOption, optionsContainer.childCount - 1)
+            addWatcher(newOption)
+            validateForm()
         }
 
-        voteSubject.addTextChangedListener(formWatcher);
+        voteSubject.addTextChangedListener(formWatcher)
 
         for (i in 0 until optionsContainer.childCount) {
             val view = optionsContainer.getChildAt(i)
             if (view is EditText) {
-                addWatcher(view);
+                addWatcher(view)
             }
         }
 
         // Also validate when a RadioButton is selected
         choicesGroup.setOnCheckedChangeListener { _, _ ->
-            validateForm();
+            validateForm()
         }
 
-        voterCount.addTextChangedListener(formWatcher);
+        voterCount.addTextChangedListener(formWatcher)
 
         continueButton.setOnClickListener {
-            val data = collectFormData();
+            val data = collectFormData()
             if (data.networkChoice.compareTo("LAN") == 0) {
-                println("Subject: ${data.subject}");
-                println("Options: ${data.options}");
-                println("Multiple Selection: ${data.allowMultiple}");
-                println("Network Choice: ${data.networkChoice}");
+                println("Subject: ${data.subject}")
+                println("Options: ${data.options}")
+                println("Multiple Selection: ${data.allowMultiple}")
+                println("Network Choice: ${data.networkChoice}")
             } else {
                 val intent = Intent(this@MainActivity, LocalDevice::class.java).apply {
                     putExtra("subject", data.subject)
@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        validateForm();
+        validateForm()
     }
 
     private val formWatcher = object : TextWatcher {
