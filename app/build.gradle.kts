@@ -37,6 +37,13 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        resources {
+            excludes += "META-INF/INDEX.LIST"
+            excludes += "META-INF/io.netty.versions.properties"
+        }
+    }
 }
 
 dependencies {
@@ -49,13 +56,13 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-//    implementation("io.ktor:ktor-client-core:3.3.0")
-//    implementation("io.ktor:ktor-client-okhttp:3.3.0")
-//    implementation("io.ktor:ktor-client-websockets:3.3.0")
-//    implementation("io.ktor:ktor-client-logging:3.3.0")
-//    implementation("io.ktor:ktor-server-core:3.3.0")
-//    implementation("io.ktor:ktor-server-netty:3.3.0")
-//    implementation("io.ktor:ktor-server-websockets:3.3.0")
+    implementation("io.ktor:ktor-client-core:3.3.0")
+    implementation("io.ktor:ktor-client-okhttp:3.3.0")
+    implementation("io.ktor:ktor-client-websockets:3.3.0")
+    implementation("io.ktor:ktor-client-logging:3.3.0")
+    implementation("io.ktor:ktor-server-core:3.3.0")
+    implementation("io.ktor:ktor-server-netty:3.3.0")
+    implementation("io.ktor:ktor-server-websockets:3.3.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
