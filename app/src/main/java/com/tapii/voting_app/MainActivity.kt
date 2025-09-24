@@ -18,6 +18,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var multipleSelectionSwitch: Switch
     private lateinit var choicesGroup: RadioGroup
     private lateinit var continueButton: Button
+    private lateinit var lanClientButton: Button
     private lateinit var addOptionButton: Button
     private lateinit var voterCount: EditText
 
@@ -35,6 +36,7 @@ class MainActivity : ComponentActivity() {
         continueButton = findViewById(R.id.continue_button)
         addOptionButton = findViewById(R.id.add_option_button)
         voterCount = findViewById(R.id.voter_count)
+        lanClientButton = findViewById(R.id.lan_client)
 
         addOptionButton.setOnClickListener {
             optionCount++
@@ -73,10 +75,12 @@ class MainActivity : ComponentActivity() {
         continueButton.setOnClickListener {
             val data = collectFormData()
             if (data.networkChoice.compareTo("LAN") == 0) {
-                println("Subject: ${data.subject}")
-                println("Options: ${data.options}")
-                println("Multiple Selection: ${data.allowMultiple}")
-                println("Network Choice: ${data.networkChoice}")
+                val intent = Intent(this@MainActivity, LANDeviceHost::class.java).apply {
+                    putExtra("subject", data.subject)
+                    putStringArrayListExtra("options", ArrayList(data.options))
+                    putExtra("allowMultiple", data.allowMultiple)
+                }
+                startActivity(intent)
             } else {
                 val intent = Intent(this@MainActivity, LocalDevice::class.java).apply {
                     putExtra("subject", data.subject)
@@ -86,6 +90,12 @@ class MainActivity : ComponentActivity() {
                 }
                 startActivity(intent)
             }
+        }
+
+
+        lanClientButton.setOnClickListener {
+            val intent = Intent(this@MainActivity, LANDeviceClient::class.java)
+            startActivity(intent)
         }
 
         validateForm()

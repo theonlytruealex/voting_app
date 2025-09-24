@@ -180,6 +180,17 @@
             android:enabled="false"
             android:padding="16dp" />
 
+        <!-- Lan CLient Button -->
+        <Button
+            android:id="@+id/lan_client"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/connect_to_lan_device"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:enabled="true"
+            android:padding="16dp" />
+
     </LinearLayout>
 
 </ScrollView>
