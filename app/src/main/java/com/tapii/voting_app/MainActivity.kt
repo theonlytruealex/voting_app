@@ -10,6 +10,7 @@ import android.widget.*
 import androidx.activity.ComponentActivity
 import androidx.core.view.isVisible
 
+
 class MainActivity : ComponentActivity() {
 
     private lateinit var optionsContainer: LinearLayout
