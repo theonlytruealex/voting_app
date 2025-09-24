@@ -27,6 +27,18 @@
             android:label="Local Device"
             android:theme="@style/Theme.Voting_app" />
 
+        <activity
+            android:name=".LANDeviceHost"
+            android:exported="true"
+            android:label="Local Device"
+            android:theme="@style/Theme.Voting_app" />
+
+        <activity
+            android:name=".LANDeviceClient"
+            android:exported="true"
+            android:label="Local Device"
+            android:theme="@style/Theme.Voting_app" />
+
     </application>
 
 </manifest>
