@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation("io.ktor:ktor-client-core:3.3.0")
+    implementation("io.ktor:ktor-client-cio:3.3.0")
     implementation("io.ktor:ktor-client-okhttp:3.3.0")
     implementation("io.ktor:ktor-client-websockets:3.3.0")
     implementation("io.ktor:ktor-client-logging:3.3.0")
