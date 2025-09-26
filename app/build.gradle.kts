@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    kotlin("plugin.serialization")
 }
 
 android {
@@ -64,6 +65,8 @@ dependencies {
     implementation("io.ktor:ktor-server-core:3.3.0")
     implementation("io.ktor:ktor-server-netty:3.3.0")
     implementation("io.ktor:ktor-server-websockets:3.3.0")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
