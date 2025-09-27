@@ -85,6 +85,9 @@ class LANDeviceClient : ComponentActivity() {
                                     sendVote(this@webSocket, checkboxes == true)
                                     castVoteButton.isEnabled = false
                                     close(CloseReason(CloseReason.Codes.NORMAL, "Vote sent"))
+                                    withContext(Dispatchers.Main) {
+                                        finish()
+                                    }
                                 }
                             }
                         }
@@ -92,7 +95,6 @@ class LANDeviceClient : ComponentActivity() {
                 }
             }
         }
-
         client.close()
     }
 
