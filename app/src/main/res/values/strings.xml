@@ -12,4 +12,5 @@
     <string name="voting_method_txt">Voting Method</string>
     <string name="voter_count_txt">Voter count</string>
     <string name="connect_to_lan_device">Connect to LAN device</string>
+    <string name="start_vote_txt">Start Vote</string>
 </resources>

@@ -2,6 +2,8 @@ package com.tapii.voting_app
 
 import Message
 import android.os.Bundle
+import android.widget.Button
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import io.ktor.server.application.*
@@ -10,6 +12,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -17,12 +20,21 @@ import kotlinx.serialization.json.*
 import java.util.Collections
 
 class LANDeviceHost : ComponentActivity() {
-    val clients: MutableCollection<DefaultWebSocketServerSession?> =
-        Collections.synchronizedList<DefaultWebSocketServerSession?>(mutableListOf())
-    var acceptNewConnections = true
+    private val clients: MutableCollection<DefaultWebSocketServerSession?> =
+        Collections.synchronizedList(mutableListOf())
+    private var acceptNewConnections = true
+
+    private lateinit var clientCountText: TextView
+    private lateinit var continueButton: Button
+    private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.lan_voting_host)
+
+        clientCountText = findViewById(R.id.ready_to_vote_count)
+        continueButton = findViewById(R.id.start_vote_button)
 
         val subject = intent.getStringExtra("subject") ?: ""
         val options = intent.getStringArrayListExtra("options") ?: arrayListOf()
@@ -30,7 +42,16 @@ class LANDeviceHost : ComponentActivity() {
         val voting = Message(subject, options, checkboxes)
         val jsonVoting = Json.encodeToString(voting)
 
-        embeddedServer(Netty, port = 8080) {
+        clientCountText.text = "Connected clients: 0"
+
+        continueButton.setOnClickListener {
+            lifecycleScope.launch {
+                broadcast(jsonVoting)
+                acceptNewConnections = false
+            }
+        }
+
+        server = embeddedServer(Netty, port = 8080) {
             install(WebSockets) {
                 pingPeriod = 15.toDuration(DurationUnit.SECONDS)
             }
@@ -45,46 +66,50 @@ class LANDeviceHost : ComponentActivity() {
 
                     println("$userID connected.")
                     clients += this
+                    updateClientCount()
 
                     try {
                         for (frame in incoming) {
                             frame as? Frame.Text ?: continue
                             val receivedText = frame.readText()
                             println("Received from $userID: $receivedText")
+
+                            // echo back for testing
+                            send("Echo from server: $receivedText")
                         }
                     } catch (e: Exception) {
                         println("Error with $userID: ${e.localizedMessage}")
                     } finally {
                         clients -= this
+                        updateClientCount()
                         println("$userID disconnected.")
                     }
                 }
             }
         }.start(wait = false)
+    }
 
-        /** TODO:
-         * After pressing CONTINUE, the flag `acceptNewConnections` should be set to `false` and the
-         * broadcast function should be used to notify the clients that the voting has started and
-         * send them the poll.
-         */
-
-        // broadcasting example
-        lifecycleScope.launch {
-            broadcast(buildJsonObject { put("votingStarted", true) }.toString())
+    private fun updateClientCount() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            clientCountText.text = "Connected clients: ${clients.size}"
         }
     }
 
     private suspend fun broadcast(message: String) {
         val deadSessions = mutableListOf<DefaultWebSocketServerSession>()
-
         clients.forEach { session ->
             try {
                 session?.send(message)
             } catch (e: Exception) {
-                deadSessions.add(session!!)
+                if (session != null) deadSessions.add(session)
             }
         }
-
         clients.removeAll(deadSessions)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        server?.stop(200, 1000, java.util.concurrent.TimeUnit.MILLISECONDS)
+        clients.clear()
     }
 }

@@ -130,7 +130,7 @@ class MainActivity : ComponentActivity() {
             if (selectedText != "LAN") {
                 voterCount.visibility = View.VISIBLE
             } else {
-                voterCount.visibility = View.INVISIBLE
+                voterCount.visibility = View.GONE
             }
         }
         continueButton.isEnabled = subjectFilled && filledOptions >= 2 && radioSelected && ((!voterCount.isVisible) || voterCount.text.toString().trim().isNotEmpty())

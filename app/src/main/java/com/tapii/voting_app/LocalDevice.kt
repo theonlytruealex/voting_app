@@ -51,18 +51,27 @@ class LocalDevice : ComponentActivity() {
 
     private fun renderOptions() {
         optionsContainer.removeAllViews()
+
+        castVoteButton.isEnabled = false
+
         if (allowMultiple) {
             for (opt in options) {
                 val cb = CheckBox(this).apply {
                     text = opt
                     textSize = 18f
                     setPadding(16)
+                    setOnCheckedChangeListener { _, _ ->
+                        updateButtonState()
+                    }
                 }
                 optionsContainer.addView(cb)
             }
         } else {
             val rg = RadioGroup(this).apply {
                 orientation = RadioGroup.VERTICAL
+                setOnCheckedChangeListener { _, _ ->
+                    updateButtonState()
+                }
             }
             for (opt in options) {
                 val rb = RadioButton(this).apply {
@@ -76,8 +85,24 @@ class LocalDevice : ComponentActivity() {
         }
     }
 
+    private fun updateButtonState() {
+        val anySelected = if (allowMultiple) {
+            (0 until optionsContainer.childCount).any { i ->
+                val view = optionsContainer.getChildAt(i)
+                view is CheckBox && view.isChecked
+            }
+        } else {
+            val rg = optionsContainer.getChildAt(0) as RadioGroup
+            rg.checkedRadioButtonId != -1
+        }
+
+        castVoteButton.isEnabled = anySelected
+    }
+
+
     private fun recordVote() {
         val selected = mutableListOf<String>()
+
 
         if (allowMultiple) {
             for (i in 0 until optionsContainer.childCount) {
