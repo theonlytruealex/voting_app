@@ -73,7 +73,6 @@ class LANDeviceClient : ComponentActivity() {
 
                             subjectText.text = subject
 
-
                             waitingText.visibility = View.GONE
                             subjectText.visibility = View.VISIBLE
                             optionsContainer.visibility = View.VISIBLE

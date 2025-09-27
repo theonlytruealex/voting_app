@@ -14,6 +14,8 @@ import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import kotlinx.serialization.json.*
@@ -41,6 +43,8 @@ class LANDeviceHost : ComponentActivity() {
         val checkboxes = intent.getBooleanExtra("allowMultiple", false)
         val voting = Message(subject, options, checkboxes)
         val jsonVoting = Json.encodeToString(voting)
+        val results = MutableList<Int>(options.size) { 0 }
+        var voterCount = 0
 
         clientCountText.text = "Connected clients: 0"
 
@@ -71,11 +75,25 @@ class LANDeviceHost : ComponentActivity() {
                     try {
                         for (frame in incoming) {
                             frame as? Frame.Text ?: continue
-                            val receivedText = frame.readText()
-                            println("Received from $userID: $receivedText")
+                            voterCount++
 
-                            // echo back for testing
-                            send("Echo from server: $receivedText")
+                            val receivedText = frame.readText()
+                            val selections: List<Boolean> = Json.decodeFromString(ListSerializer(Boolean.serializer()), receivedText)
+
+                            selections.forEachIndexed { i, selected ->
+                                if (selected) {
+                                    results[i]++
+                                }
+                            }
+
+                            if (voterCount >= clients.size) {
+                                lifecycleScope.launch(Dispatchers.Main) {
+                                    server?.stop(200, 1000, java.util.concurrent.TimeUnit.MILLISECONDS)
+                                    clients.clear()
+                                }
+                            }
+
+                            // TODO: Display the results
                         }
                     } catch (e: Exception) {
                         println("Error with $userID: ${e.localizedMessage}")
