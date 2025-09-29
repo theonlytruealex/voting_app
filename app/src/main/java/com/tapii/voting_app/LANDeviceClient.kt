@@ -52,49 +52,54 @@ class LANDeviceClient : ComponentActivity() {
             install(WebSockets)
         }
 
-        runBlocking {
-            client.webSocket(host = getDefaultGateway(this@LANDeviceClient), port = 8080,
-                            path = "/voting") {
-                for (frame in incoming) {
-                    if (frame is Frame.Text) {
+        lifecycleScope.launch {
+            try {
+                client.webSocket(host = getDefaultGateway(this@LANDeviceClient)!!, port = 8080, path = "/voting") {
+                    for (frame in incoming) {
+                        if (frame is Frame.Text) {
+                            val receivedText = frame.readText()
+                            val jsonText = Json.parseToJsonElement(receivedText)
 
-                        val receivedText = frame.readText()
-                        val jsonText = Json.parseToJsonElement(receivedText)
+                            if (jsonText is JsonObject) {
+                                val subject = jsonText["subject"]?.jsonPrimitive?.contentOrNull
+                                val options = jsonText["options"]?.jsonArray?.map {
+                                    it.jsonPrimitive.content
+                                } ?: emptyList()
+                                val checkboxes = jsonText["checkboxes"]?.jsonPrimitive?.booleanOrNull
 
-                        if (jsonText is JsonObject) {
+                                // switch to main thread for UI
+                                withContext(Dispatchers.Main) {
+                                    renderOptions(checkboxes == true, options)
+                                    subjectText.text = subject
 
-                            val subject = jsonText["subject"]?.jsonPrimitive?.contentOrNull
-                            val options = jsonText["options"]?.jsonArray?.map {
-                                it.jsonPrimitive.content
-                            } ?: emptyList()
-                            val checkboxes = jsonText["checkboxes"]?.jsonPrimitive?.booleanOrNull
+                                    waitingText.visibility = View.GONE
+                                    subjectText.visibility = View.VISIBLE
+                                    optionsContainer.visibility = View.VISIBLE
+                                    castVoteButton.visibility = View.VISIBLE
+                                    voterInfo.visibility = View.VISIBLE
 
-                            renderOptions(checkboxes == true, options)
-
-                            subjectText.text = subject
-
-                            waitingText.visibility = View.GONE
-                            subjectText.visibility = View.VISIBLE
-                            optionsContainer.visibility = View.VISIBLE
-                            castVoteButton.visibility = View.VISIBLE
-                            voterInfo.visibility = View.VISIBLE
-
-                            castVoteButton.setOnClickListener {
-                                lifecycleScope.launch {
-                                    sendVote(this@webSocket, checkboxes == true)
-                                    castVoteButton.isEnabled = false
-                                    close(CloseReason(CloseReason.Codes.NORMAL, "Vote sent"))
-                                    withContext(Dispatchers.Main) {
-                                        finish()
+                                    castVoteButton.setOnClickListener {
+                                        lifecycleScope.launch {
+                                            sendVote(this@webSocket, checkboxes == true)
+                                            castVoteButton.isEnabled = false
+                                            close(CloseReason(CloseReason.Codes.NORMAL, "Vote sent"))
+                                            finish()
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    waitingText.text = "Connection failed: ${e.message}"
+                }
+            } finally {
+                client.close()
             }
         }
-        client.close()
     }
 
     private fun getDefaultGateway(context: Context): String? {
