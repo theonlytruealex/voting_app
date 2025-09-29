@@ -52,7 +52,7 @@ class LANDeviceClient : ComponentActivity() {
             install(WebSockets)
         }
 
-        runBlocking {
+        lifecycleScope.launch {
             client.webSocket(host = getDefaultGateway(this@LANDeviceClient), port = 8080,
                             path = "/voting") {
                 for (frame in incoming) {
