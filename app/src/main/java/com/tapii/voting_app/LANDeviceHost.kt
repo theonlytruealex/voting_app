@@ -98,8 +98,7 @@ class LANDeviceHost : ComponentActivity() {
 
                             if (voterCount >= clients.size) {
                                 lifecycleScope.launch(Dispatchers.Main) {
-                                    server?.stop(200, 1000, java.util.concurrent.TimeUnit.MILLISECONDS)
-                                    clients.clear()
+                                    endVoting()
                                 }
                             }
 
@@ -142,19 +141,38 @@ class LANDeviceHost : ComponentActivity() {
     }
 
     private fun showResults() {
-        val builder = StringBuilder("Voting Finished!\n\nResults:\n")
-        for ((opt, count) in votes) {
-            builder.append("$opt: $count\n")
-        }
-        Toast.makeText(this, builder.toString(), Toast.LENGTH_LONG).show()
-
-        for ((opt, count) in votes) {
-            val tv = TextView(this).apply {
-                text = "$opt: $count"
-                textSize = 18f
-                setPadding(16)
+        lifecycleScope.launch(Dispatchers.Main) {
+            clientCountText.visibility = View.INVISIBLE
+            continueButton.visibility = View.INVISIBLE
+            val builder = StringBuilder("Voting Finished!\n\nResults:\n")
+            for ((opt, count) in votes) {
+                builder.append("$opt: $count\n")
             }
-            resultDisplayer.addView(tv)
+            Toast.makeText(this@LANDeviceHost, builder.toString(), Toast.LENGTH_LONG).show()
+
+            resultDisplayer.removeAllViews()
+            for ((opt, count) in votes) {
+                val tv = TextView(this@LANDeviceHost).apply {
+                    text = "$opt: $count"
+                    textSize = 18f
+                    setPadding(16)
+                }
+                resultDisplayer.addView(tv)
+            }
         }
     }
+
+    private suspend fun endVoting() {
+        broadcast("Voting Finished!")
+
+        clients.forEach { session ->
+            session?.close(CloseReason(CloseReason.Codes.NORMAL, "Voting ended"))
+        }
+
+        clients.clear()
+
+        server?.stop(200, 1000, java.util.concurrent.TimeUnit.MILLISECONDS)
+    }
+
+
 }
