@@ -22,6 +22,33 @@
         android:text="@string/start_vote_txt"
         android:layout_marginTop="20dp" />
 
+
+        <TextView
+        android:visibility="gone"
+        android:id="@+id/local_subject"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Subject"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:paddingBottom="16dp" />
+
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/local_options_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <Button
+        android:visibility="gone"
+        android:id="@+id/cast_vote_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cast Vote"
+        android:layout_marginTop="20dp" />
+
     <LinearLayout
         android:id="@+id/result_displayer"
         android:layout_width="match_parent"
